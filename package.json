@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@cloudamqp/amqp-client": "^3.3.2",
     "cron": "^4.3.3",
     "express": "^5.1.0"
   },
