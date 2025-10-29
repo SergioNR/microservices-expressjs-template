@@ -1,7 +1,7 @@
 import  express from 'express'
 import { createServer } from 'http';
 import { consumeQueue } from './config/eventQueue/consumer.js';
-import { sendMessageToQueue } from './config/publisher.js';
+import { sendMessageToQueue } from './config/eventQueue/publisher.js';
 import { globalErrorHandler } from './middleware/globalErrorHandler.js';
 
 const app = express();
@@ -9,6 +9,7 @@ const server = createServer(app);
 
 consumeQueue('queueName');  //* Subscribe to queue name
 
+// sendMessageToQueue('queueName', 'message2'); // * Send message to queues
 
 //* Middleware to catch & handle errors
 app.use(globalErrorHandler);
