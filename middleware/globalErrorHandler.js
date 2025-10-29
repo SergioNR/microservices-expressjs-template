@@ -1,4 +1,4 @@
-import { logError } from '../config/loggerFunctions.js';
+import { logError } from '../config/logger/loggerFunctions.js';
 
 export const globalErrorHandler = (err, req, res, next) => {
   logError(err.name, err);
