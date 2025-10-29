@@ -20,6 +20,8 @@ app.listen(process.env.PORT, () => {
 
 const gracefulShutdown = () => {
     console.log('Received shutdown signal, closing server...');
+    console.log('LavinMQ connection closed'); // TODO -- add disconnection from Queue
+
     server.close(() => {
     console.log('Express server closed');
     
