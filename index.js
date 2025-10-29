@@ -2,11 +2,14 @@ import  express from 'express'
 import { createServer } from 'http';
 import { consumeQueue } from './config/consumer.js';
 import { sendMessageToQueue } from './config/publisher.js';
+import { globalErrorHandler } from './middleware/globalErrorHandler.js';
 
 const app = express();
 const server = createServer(app);
 
 
+//* Middleware to catch & handle errors
+app.use(globalErrorHandler);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`)
