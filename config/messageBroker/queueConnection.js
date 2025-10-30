@@ -6,24 +6,7 @@ export const connectToAMQP = async () => {
       const amqpConnection = await amqp.connect()
       const channel = await amqpConnection.channel()
   
-  
-      await channel.exchangeDeclare('exampleExchange', 'direct', {
-        internal: false,
-        autoDelete: false,
-        durable: true
-      });
-  
-      await channel.queueDeclare('exampleQueue',{
-        exclusive: false,
-        autoDelete: false,
-        durable: true
-      });
-      
-      await channel.queueBind('exampleQueue', 'exampleExchange', 'exampleMessage',{
-        // No args
-      });
-
-      return
+      return channel;
 
     } catch (e) {
       console.error("ERROR", e)
@@ -34,3 +17,37 @@ export const connectToAMQP = async () => {
       setTimeout(connectToAMQP, 1000) // will try to reconnect in 1s
     }
   }
+
+export const declareDirectExchange = async (exchangeName) => {
+  const channel = await connectToAMQP()
+
+  await channel.exchangeDeclare(exchangeName, 'direct', {
+        internal: false,
+        autoDelete: false,
+        durable: true
+      });
+
+      return;
+}
+
+export const declareQueue = async (queueName) => {
+  const channel = await connectToAMQP()
+
+  const queue = await channel.queueDeclare(queueName, {
+        exclusive: false,
+        autoDelete: false,
+        durable: true
+      });
+
+      return queue;
+}
+
+export const bindQueue = async (queueName, exchangeName, routingKey) => {
+  const channel = await connectToAMQP()
+
+  await channel.queueBind(queueName, exchangeName, routingKey,{
+        // No args
+      });
+
+      return;
+}

@@ -1,12 +1,22 @@
 import  express from 'express'
 import { createServer } from 'http';
 import { globalErrorHandler } from './middleware/globalErrorHandler.js';
-import { connectToAMQP } from './config/messageBroker/queueConnection.js';
+import { bindQueue, connectToAMQP, declareDirectExchange, declareQueue } from './config/messageBroker/queueConnection.js';
+import { sendMessageToExchange } from './config/messageBroker/publisher.js';
+import { consumeQueue } from './config/messageBroker/consumer.js';
 
 const app = express();
 const server = createServer(app);
 
-connectToAMQP()
+
+declareDirectExchange('exampleExchange');
+declareQueue('exampleQueue');
+bindQueue('exampleQueue', 'exampleExchange', 'exampleRoutingKey');
+
+
+
+// sendMessageToExchange()
+// consumeQueue()
 
 //* Middleware to catch & handle errors
 app.use(globalErrorHandler);
