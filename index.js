@@ -1,15 +1,12 @@
 import  express from 'express'
 import { createServer } from 'http';
-import { consumeQueue } from './config/eventQueue/consumer.js';
-import { sendMessageToQueue } from './config/eventQueue/publisher.js';
 import { globalErrorHandler } from './middleware/globalErrorHandler.js';
+import { connectToAMQP } from './config/eventQueue/queueConnection.js';
 
 const app = express();
 const server = createServer(app);
 
-consumeQueue('queueName');  //* Subscribe to queue name
-
-// sendMessageToQueue('queueName', 'message2'); // * Send message to queues
+connectToAMQP()
 
 //* Middleware to catch & handle errors
 app.use(globalErrorHandler);
@@ -20,7 +17,7 @@ app.listen(process.env.PORT, () => {
 
 const gracefulShutdown = () => {
     console.log('Received shutdown signal, closing server...');
-    console.log('LavinMQ connection closed'); // TODO -- add disconnection from Queue
+    console.log('LavinMQ connection closed'); // TODO -- add graceful disconnection from LavinMQ
 
     server.close(() => {
     console.log('Express server closed');
