@@ -1,19 +1,13 @@
 import { AMQPClient } from "@cloudamqp/amqp-client"
 
-export let exchange;
-
-const connectToAMQP = async () => {
-
-  if (exchange) {
-    return exchange;
-  } else {
+export const connectToAMQP = async () => {
     try {
       const amqp = new AMQPClient(process.env.LAVINMQ_HOST)
       const amqpConnection = await amqp.connect()
       const channel = await amqpConnection.channel()
   
   
-      const exchange = await channel.exchangeDeclare('exampleExchange', 'direct', {
+      await channel.exchangeDeclare('exampleExchange', 'direct', {
         internal: false,
         autoDelete: false,
         durable: true
@@ -29,7 +23,7 @@ const connectToAMQP = async () => {
         // No args
       });
 
-      return channel
+      return
 
     } catch (e) {
       console.error("ERROR", e)
@@ -40,4 +34,3 @@ const connectToAMQP = async () => {
       setTimeout(connectToAMQP, 1000) // will try to reconnect in 1s
     }
   }
-};

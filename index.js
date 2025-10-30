@@ -1,7 +1,7 @@
 import  express from 'express'
 import { createServer } from 'http';
 import { globalErrorHandler } from './middleware/globalErrorHandler.js';
-import { connectToAMQP } from './config/eventQueue/queueConnection.js';
+import { connectToAMQP } from './config/messageBroker/queueConnection.js';
 
 const app = express();
 const server = createServer(app);
