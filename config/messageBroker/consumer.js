@@ -1,13 +1,11 @@
 import { connectToAMQP } from "./queueConnection.js";
 
-export const consumeQueue = async (queueName) => {
-  try {
-    const channel = await connectToAMQP();
-    const queue = await channel.queue(queueName);
+export const consumeQueue = async () => {
+    try {    
+    const messageQueue = await connectToAMQP();
+    console.log(`Ready to receive messages in queue ${messageQueue}...`);
 
-    console.log(`Ready to receive messages in ${queueName} queue...`);
-
-    const consumer = await queue.subscribe({ noAck: false }, async (msg) => {
+    const consumer = await messageQueue.subscribe({ noAck: false }, async (msg) => {
       try {
         const content = msg.bodyToString();
         console.log("Received message:", content);
@@ -30,5 +28,4 @@ export const consumeQueue = async (queueName) => {
   } catch (error) {
     console.error("Error in consumer:", error);
     setTimeout(consumeQueue, 1000); // Reconnect after 1 second
-  }
-};
+  }}
