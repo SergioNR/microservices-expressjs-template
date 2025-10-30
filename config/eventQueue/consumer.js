@@ -1,8 +1,8 @@
-import { connectToEventQueue } from "./queueConnection.js";
+import { connectToAMQP } from "./queueConnection.js";
 
 export const consumeQueue = async (queueName) => {
   try {
-    const channel = await connectToEventQueue();
+    const channel = await connectToAMQP();
     const queue = await channel.queue(queueName);
 
     console.log(`Ready to receive messages in ${queueName} queue...`);
