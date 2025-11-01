@@ -1,22 +1,23 @@
 import  express from 'express'
 import { createServer } from 'http';
 import { globalErrorHandler } from './middleware/globalErrorHandler.js';
-import { bindQueue, connectToAMQP, declareDirectExchange, declareQueue } from './config/messageBroker/queueConnection.js';
-import { sendMessageToExchange } from './config/messageBroker/publisher.js';
-import { consumeQueue } from './config/messageBroker/consumer.js';
+import { connectToMessageBroker, publishDirect, publishLogs } from './config/messageBroker/LavinMQ.js';
+
 
 const app = express();
 const server = createServer(app);
 
-
-declareDirectExchange('exampleExchange');
-declareQueue('exampleQueue');
-bindQueue('exampleQueue', 'exampleExchange', 'exampleRoutingKey');
+connectToMessageBroker();
 
 
+setTimeout(() => { //* Reminder to allow a few seconds for the message broker to connect before trying to send a message 
 
-// sendMessageToExchange()
-// consumeQueue()
+  publishDirect('{"text":"hello", "id": "123", "type": "case1"}')
+
+  publishLogs('{"timestamp": "2025-11-01T16:00:00Z", "service": "transcription-service", "level": "INFO", "message": "exampleMessage", "event":"exampleEvent", "environment": "production"}')                             
+  // Optional "userId": "123456789",
+
+}, 1000)
 
 //* Middleware to catch & handle errors
 app.use(globalErrorHandler);
