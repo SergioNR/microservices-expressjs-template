@@ -1,14 +1,13 @@
 import  express from 'express'
 import { createServer } from 'http';
 import { globalErrorHandler } from './middleware/globalErrorHandler.js';
-import { bindQueue, connectToAMQP, declareDirectExchange, declareQueue } from './config/messageBroker/queueConnection.js';
-import { sendMessageToExchange } from './config/messageBroker/publisher.js';
-import { consumeQueue } from './config/messageBroker/consumer.js';
+import { connectToMessageBroker } from './config/messageBroker/LavinMQ.js';
+
 
 const app = express();
 const server = createServer(app);
 
-
+connectToMessageBroker();
 declareDirectExchange('exampleExchange');
 declareQueue('exampleQueue');
 bindQueue('exampleQueue', 'exampleExchange', 'exampleRoutingKey');
