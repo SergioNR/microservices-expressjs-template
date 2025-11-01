@@ -2,7 +2,8 @@ import { AMQPClient } from '@cloudamqp/amqp-client'
 
 let connection;
 let channel;
-let exampleQueue;
+let exampleDirectQueue;
+let logsQueue
 
 // Main AMQP setup function
 export const connectToMessageBroker = async () => {
@@ -17,70 +18,68 @@ export const connectToMessageBroker = async () => {
     // 3. Declare exchanges & queues & bindings
 
 
-    // 3.1 logs_exchange, logs_queue, bindings
+      // 3.1 logs_exchange, logs_queue, bindings
 
-    const logsExchange = await channel.exchangeDeclare('logs_exchange', 'topic', {
-        durable: true,
-        passive: false,
-        autoDelete: false,
-        internal: false,
-      });
+        const logsExchange = await channel.exchangeDeclare('logs_exchange', 'topic', {
+            durable: true,
+            passive: false,
+            autoDelete: false,
+            internal: false,
+          });
 
-    const logsQueue = await channel.queue('logs_queue', { // queue name
-        durable: true,
-        passive: false,
-        autoDelete: false,
-        exclusive: false,
-      });
+        logsQueue = await channel.queue('logs_queue', { // queue name
+            durable: true,
+            passive: false,
+            autoDelete: false,
+            exclusive: false,
+          });
 
-    await logsQueue.bind('logs_exchange', "logs.#", {
-      // no args
-    });
+        await logsQueue.bind('logs_exchange', "logs.#", {
+          // no args
+        });
 
-    // 3.2 example_exchange, example_queue, bindings // * use this as a base for queues
+        // 3.2 example_exchange, example_queue, bindings // * use this as a base for queues
 
-      //* Declare exchange
-    const exampleExchange = await channel.exchangeDeclare('example_exchange', 'topic' , { // Name , type
-        durable: true,
-        passive: false,
-        autoDelete: false,
-        internal: false,
-      })
+          //* Declare exchange
+        const exampleDirectExchange = await channel.exchangeDeclare('example_direct_exchange', 'direct' , { // Name , type
+            durable: true,
+            passive: false,
+            autoDelete: false,
+            internal: false,
+          })
 
-      //* Declare queue
-    const exampleQueue = await channel.queue('example_queue', { // queue name
-        durable: true,
-        passive: false,
-        autoDelete: false,
-        exclusive: false,
-      });
+          //* Declare queue
+        exampleDirectQueue = await channel.queue('example_direct_queue', { // queue name
+            durable: true,
+            passive: false,
+            autoDelete: false,
+            exclusive: false,
+          });
 
-      //* Bind queue to exchange with routing key
-    await exampleQueue.bind('example_exchange', 'service.action.*', { // queue name, exchange name, routing key // * '*' Allows for wildcard matching in routing keys - '#' allows for multiple levels of routing keys
-      });
-      
-       //*  Note on routing keys:
-      /* It a best practice to use dot notation for routing keys to represent a hierarchy of topics
-        ie: 'service.action.id' where service is the service name, action is the action being performed, and id is the specific identifier - This way, you can easily filter messages based on the service, action, or specific identifier. - topic-type exchanges And use wildcards - eg: 'transcript.request.*' <-- Would request a transcript of every id
-        */
+          //* Bind queue to exchange with routing key
+        await exampleDirectQueue.bind('example_direct_exchange', 'service.action', { // queue name, exchange name, routing key // * '*' Allows for wildcard matching in routing keys - '#' allows for multiple levels of routing keys
+          });
+          
+          //*  Note on routing keys:
+          /* It a best practice to use dot notation for routing keys to represent a hierarchy of topics
+          ie: 'service.action.id' where service is the service name, action is the action being performed, and id is the specific identifier - This way, you can easily filter messages based on the service, action, or specific identifier. - topic-type exchanges And use wildcards - eg: 'transcript.request.*' <-- Would request a transcript of every id
+          */
 
     // 4. Set up producer/s
   
-      await exampleQueue.publish('{"text":"hello", "id": "123", "type": "case1"}');
+      // await exampleDirectQueue.publish('{"text":"hello", "id": "123", "type": "case1"}');
 
-      await logsQueue.publish('{"type":"event", "name": "requested AWS transcript"}');
+      // await logsQueue.publish('{"type":"event", "name": "requested AWS transcript"}');
     
   // 5. Set up consumer/s
 
-    const consumer = await exampleQueue.subscribe({ noAck: false }, async (msg) => {
+    const consumer = await exampleDirectQueue.subscribe({ noAck: false }, async (msg) => {
       try {
         const contentStr = msg.bodyToString();
         console.log('Received message:', contentStr);
         
         const content = JSON.parse(contentStr);
         console.log('content', content)
-        // const entryId = content.entryId;
-        // console.log(`[🎤] Received example request with requestId: ${entryId}`);
 
         switch (content.type) {
           case 'case1':
@@ -106,10 +105,33 @@ export const connectToMessageBroker = async () => {
       }
     });
     
-    return { connection: connection, channel: channel, exampleExchange, exampleQueue };
+    console.log('service connected to LavinMQ message broker')
+
+    return { connection: connection, channel: channel, exampleDirectExchange, exampleDirectQueue };
   } catch (e) {
     console.error("ERROR", e);
     e.connection?.close();
     setTimeout(connectToMessageBroker, 1000); // will try to reconnect in 1s
   }
 }
+
+// function for publishing to direct queue
+export const publishDirect = async (message) => {
+  console.log(`publishing to exampleDirectQueue message function called`);
+  try {
+    await exampleDirectQueue.publish(message);
+  } catch (err) {
+    console.error('Error publishing direct message:', err);
+  }
+}
+
+// function for publishing to logs queue
+export const publishLogs = async (message) => {
+  console.log(`publishing to logsQueue message function called`);
+  try {
+    await logsQueue.publish(message);
+  } catch (err) {
+    console.error('Error publishing logs message:', err);
+  }
+}
+
