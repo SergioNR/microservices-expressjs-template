@@ -1,4 +1,4 @@
-import { publishDirect, publishLogs } from "../config/messageBroker/LavinMQ.js";
+import { publishLogs } from "../config/messageBroker/LavinMQ.js";
 
 
 export const globalErrorHandler = (err, req, res, next) => {
@@ -7,6 +7,6 @@ export const globalErrorHandler = (err, req, res, next) => {
   "level": "INFO",
   "message": "${err.message}",
   "event":"${err.name}",
-  "environment": "${process.env.DEPLOYMENT_ENVIRONMENT}"}`)
+  "environment": "${process.env.DEPLOY_ENVIRONMENT}"}`)
 
 };
