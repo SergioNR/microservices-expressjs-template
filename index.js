@@ -14,7 +14,7 @@ setTimeout(() => { //* Reminder to allow a few seconds for the message broker to
 
   publishDirect('{"text":"hello", "id": "123", "type": "case1"}')
 
-  publishLogs('{"timestamp": "2025-11-01T16:00:00Z", "service": "transcription-service", "level": "INFO", "message": "exampleMessage", "event":"exampleEvent", "environment": "production"}')                             
+  publishLogs('{"timestamp": "2025-11-01T16:00:00Z", "service": "transcription-service", "level": "INFO", "message": "exampleMessage", "event":"exampleEvent", "environment": "production"}')  
   // Optional "userId": "123456789",
 
 }, 1000)
